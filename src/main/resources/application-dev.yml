@@ -1,0 +1,16 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ai_video_ip_dev
+    username: postgres
+    password: postgres
+
+logging:
+  level:
+    root: DEBUG
+    com.aivideoip: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
