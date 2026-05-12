@@ -38,4 +38,5 @@ public class Summary extends BaseEntity {
         DETAILED,
         BRIEF
     }
+    
 }
