@@ -112,4 +112,5 @@ public class TranscriptChunkService {
                 .embedding(chunk.getEmbedding())
                 .build();
     }
+    
 }
