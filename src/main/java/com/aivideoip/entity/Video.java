@@ -61,6 +61,9 @@ public class Video extends BaseEntity {
     @Column
     private Long fileSize;
 
+    @Column(length = 500)
+    private String audioFilePath;
+
     public enum VideoSource {
         YOUTUBE, UPLOADED, URL, PODCAST, WEBINAR
     }

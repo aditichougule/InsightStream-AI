@@ -56,3 +56,10 @@ app:
   ytdlp:
     enabled: true
     path: yt-dlp
+  ffmpeg:
+    enabled: true
+    path: ffmpeg
+  audio:
+    output-dir: uploads/audio
+    format: mp3
+    bitrate: 128k
