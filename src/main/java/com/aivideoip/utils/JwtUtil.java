@@ -42,29 +42,29 @@ public class JwtUtil {
     }
 
     public String getUserIdFromToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
+        return Jwts.parser()
+                .verifyWith(getSigningKey())
                 .build()
-                .parseClaimsJws(token)
-                .getBody()
+                .parseSignedClaims(token)
+                .getPayload()
                 .get("userId", String.class);
     }
 
     public String getEmailFromToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
+        return Jwts.parser()
+                .verifyWith(getSigningKey())
                 .build()
-                .parseClaimsJws(token)
-                .getBody()
+                .parseSignedClaims(token)
+                .getPayload()
                 .getSubject();
     }
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey())
+            Jwts.parser()
+                    .verifyWith(getSigningKey())
                     .build()
-                    .parseClaimsJws(token);
+                    .parseSignedClaims(token);
             return true;
         } catch (Exception ex) {
             log.error("Invalid JWT token: {}", ex.getMessage());
@@ -74,11 +74,11 @@ public class JwtUtil {
 
     public boolean isTokenExpired(String token) {
         try {
-            Date expiration = Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey())
+            Date expiration = Jwts.parser()
+                    .verifyWith(getSigningKey())
                     .build()
-                    .parseClaimsJws(token)
-                    .getBody()
+                    .parseSignedClaims(token)
+                    .getPayload()
                     .getExpiration();
             return expiration.before(new Date());
         } catch (Exception ex) {

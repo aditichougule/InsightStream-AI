@@ -2,6 +2,7 @@ package com.aivideoip.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,6 +16,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Video extends BaseEntity {
 
     @Column(nullable = false)
@@ -46,6 +48,18 @@ public class Video extends BaseEntity {
 
     @Column(length = 2000)
     private String errorMessage;
+
+    @Column(length = 255)
+    private String videoId;
+
+    @Column(length = 255)
+    private String fileName;
+
+    @Column(length = 500)
+    private String filePath;
+
+    @Column
+    private Long fileSize;
 
     public enum VideoSource {
         YOUTUBE, UPLOADED, URL, PODCAST, WEBINAR
