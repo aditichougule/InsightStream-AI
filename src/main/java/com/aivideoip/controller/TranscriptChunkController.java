@@ -14,6 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/videos/{videoId}/transcript-chunks")
 @RequiredArgsConstructor
@@ -71,5 +74,44 @@ public class TranscriptChunkController {
         log.info("Deleting chunk: {}", chunkId);
         service.deleteChunk(chunkId);
         return ResponseEntity.ok(ApiResponse.success("Chunk deleted"));
+    }
+
+    @PostMapping("/chunking/apply")
+    @Operation(summary = "Apply intelligent semantic chunking to a transcript")
+    public ResponseEntity<ApiResponse<List<TranscriptChunkDTO>>> applySemanticChunking(
+            @PathVariable Long videoId,
+            @RequestParam String transcript,
+            @RequestParam(defaultValue = "0") Integer startTime,
+            @RequestParam Integer endTime) {
+        log.info("Applying semantic chunking to video: {}", videoId);
+        
+        List<TranscriptChunkDTO> chunks = service.performSemanticChunking(videoId, transcript, startTime, endTime);
+        
+        return ResponseEntity.ok(ApiResponse.success(chunks, 
+                "Semantic chunking completed: " + chunks.size() + " chunks created"));
+    }
+
+    @GetMapping("/statistics")
+    @Operation(summary = "Get chunking statistics for a video")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getChunkingStatistics(
+            @PathVariable Long videoId) {
+        log.debug("Fetching chunking statistics for video: {}", videoId);
+        
+        Map<String, Object> stats = service.getChunkingStatistics(videoId);
+        
+        return ResponseEntity.ok(ApiResponse.success(stats, "Statistics retrieved successfully"));
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "Search chunks by keyword")
+    public ResponseEntity<ApiResponse<List<TranscriptChunkDTO>>> searchChunks(
+            @PathVariable Long videoId,
+            @RequestParam String keyword) {
+        log.debug("Searching chunks in video {} for keyword: {}", videoId, keyword);
+        
+        List<TranscriptChunkDTO> results = service.searchChunks(videoId, keyword);
+        
+        return ResponseEntity.ok(ApiResponse.success(results, 
+                "Search completed: " + results.size() + " results found"));
     }
 }

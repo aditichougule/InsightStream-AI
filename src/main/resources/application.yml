@@ -66,3 +66,7 @@ app:
   whisper:
     enabled: true
     service-url: http://localhost:5000
+  chunking:
+    min-size: 50          # Minimum words per chunk
+    target-size: 500      # Target words per chunk
+    max-size: 1000        # Maximum words per chunk
