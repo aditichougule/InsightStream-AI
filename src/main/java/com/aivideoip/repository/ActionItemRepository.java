@@ -17,4 +17,6 @@ public interface ActionItemRepository extends JpaRepository<ActionItem, Long> {
     Page<ActionItem> findByVideoIdAndStatus(Long videoId, ActionItem.ActionStatus status, Pageable pageable);
     
     long countByVideoIdAndStatus(Long videoId, ActionItem.ActionStatus status);
+
+    void deleteByVideoId(Long videoId);
 }
