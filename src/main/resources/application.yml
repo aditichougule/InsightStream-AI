@@ -71,10 +71,26 @@ app:
     target-size: 500      # Target words per chunk
     max-size: 1000        # Maximum words per chunk
   llm:
-    enabled: true
+    # OpenAI Configuration (Legacy - not used with Ollama)
+    enabled: false
     api-key: ${OPENAI_API_KEY:your-openai-api-key-here}
     api-url: https://api.openai.com/v1/chat/completions
     model: gpt-3.5-turbo
     max-tokens: 2000
     temperature: 0.7
     timeout: 30
+  
+  ollama:
+    # Ollama Local LLM Configuration (ACTIVE)
+    enabled: true
+    api-url: http://localhost:11434
+    model: llama3                    # Main model: llama3, mistral, qwen2.5, neural-chat, dolphin-mixtral
+    max-tokens: 2000
+    temperature: 0.7
+    timeout: 120                     # Local models may take longer
+    # Alternative models to try:
+    # - llama3: Most capable, good for complex tasks (7B/13B parameters)
+    # - mistral: Faster, good for simple tasks (7B parameters)
+    # - qwen2.5: Good for structured output like JSON (7B/32B parameters)
+    # - neural-chat: Optimized for conversational tasks (7B parameters)
+    # - dolphin-mixtral: Very capable MoE model (47B parameters, needs 40GB RAM)
