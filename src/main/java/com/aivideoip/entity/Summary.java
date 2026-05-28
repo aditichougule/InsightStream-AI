@@ -35,10 +35,14 @@ public class Summary extends BaseEntity {
     @Column(nullable = false)
     private SummaryType summaryType = SummaryType.GENERAL;
 
+    @Column(columnDefinition = "TEXT")
+    private String metadata;  // JSON containing action items, timestamps, concepts
+
     public enum SummaryType {
         GENERAL,
         DETAILED,
-        BRIEF
+        BRIEF,
+        COMPREHENSIVE
     }
     
 }
