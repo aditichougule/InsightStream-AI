@@ -94,3 +94,14 @@ app:
     # - qwen2.5: Good for structured output like JSON (7B/32B parameters)
     # - neural-chat: Optimized for conversational tasks (7B parameters)
     # - dolphin-mixtral: Very capable MoE model (47B parameters, needs 40GB RAM)
+
+  # Step 18: Local Embeddings Configuration
+  embeddings:
+    enabled: true
+    api-url: http://localhost:11434
+    model: nomic-embed-text          # Local embedding model (768-dimensional vectors)
+
+  # Step 19: ChromaDB Vector Storage Configuration
+  chromadb:
+    api-url: http://localhost:8000
+    collection-name: video-embeddings
