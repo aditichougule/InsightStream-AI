@@ -9,6 +9,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 /**
  * Configuration for HTTP clients
  */
+
 @Configuration
 public class HttpClientConfig {
 
