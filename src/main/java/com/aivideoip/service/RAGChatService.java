@@ -39,6 +39,7 @@ public class RAGChatService {
     private final TranscriptChunkRepository chunkRepository;
     private final VideoRepository videoRepository;
     private final ObjectMapper objectMapper;
+    private final ContextInjectionService contextInjectionService;
     
     @Value("${app.ollama.embedding-model:nomic-embed-text}")
     private String embeddingModel;
@@ -100,12 +101,22 @@ public class RAGChatService {
             // Step 4: Build context from retrieved chunks
             String context = buildContext(sources);
             
+            // Step 22: Validate context quality before LLM generation
+            ContextInjectionService.ContextQualityMetrics contextQuality = 
+                    contextInjectionService.evaluateContextQuality(sources);
+            log.info("Context quality - chunks: {}, similarity: {:.2f}, high-quality: {}",
+                    contextQuality.getChunkCount(), contextQuality.getAverageSimilarity(), 
+                    contextQuality.isHighQuality());
+            
             // Step 5: Generate answer using LLM with context
             String answer = generateAnswerWithContext(
                     request.getQuestion(),
                     context,
                     video.getTitle()
             );
+            
+            // Step 22: Sanitize response to ensure context compliance
+            answer = contextInjectionService.sanitizeResponse(answer, sources);
             
             // Step 6: Calculate confidence based on similarity scores
             float confidence = sources.stream()
@@ -215,11 +226,15 @@ public class RAGChatService {
     }
     
     /**
-     * Build context string from retrieved chunks
+     * Build context string from retrieved chunks with proper formatting for context injection
+     * 
+     * Step 22: Context Injection - Enhanced prompt structure
+     * Ensures LLM answers ONLY using provided context
      */
     private String buildContext(List<ChatResponse.ChatSource> sources) {
         StringBuilder context = new StringBuilder();
-        context.append("Context from video transcript:\n\n");
+        context.append("TRANSCRIPT CONTEXT:\n");
+        context.append("==================\n\n");
         
         for (ChatResponse.ChatSource source : sources) {
             context.append(String.format(
@@ -234,31 +249,52 @@ public class RAGChatService {
     }
     
     /**
-     * Generate answer using LLM with context
+     * Generate answer using LLM with context injection (Step 22)
+     * 
+     * Uses context-aware prompt injection to ensure answers are
+     * grounded in provided transcript context only
      */
     private String generateAnswerWithContext(String question, String context, String videoTitle) {
-        String prompt = buildRAGPrompt(question, context, videoTitle);
+        boolean hasContext = context != null && !context.trim().isEmpty();
+        
+        String prompt = contextInjectionService.buildContextInjectedPrompt(
+                question,
+                context,
+                videoTitle,
+                hasContext
+        );
         
         String answer = ollamaClient.generateText(prompt, chatModel).block();
         
         if (answer == null || answer.isBlank()) {
             log.warn("LLM returned empty answer for question: {}", question);
-            return "Unable to generate answer from the video content.";
+            return "Not found in video.";
         }
         
         return answer.trim();
     }
     
     /**
-     * Build the prompt for LLM with context and question
+     * Build the prompt for LLM with context injection (Step 22)
+     * 
+     * This prompt template enforces:
+     * 1. Answer ONLY using provided context
+     * 2. Clear separation between context and question
+     * 3. Explicit instruction to reject out-of-context answers
+     * 4. Timestamp awareness for accurate references
      */
     private String buildRAGPrompt(String question, String context, String videoTitle) {
         return String.format(
-                "You are a helpful assistant answering questions about the video titled \"%s\".\n\n" +
+                "You are answering questions about the video: \"%s\"\n\n" +
                         "%s\n\n" +
-                        "Based on the context above, please answer the following question:\n" +
-                        "Question: %s\n\n" +
-                        "Answer (be concise and accurate):",
+                        "INSTRUCTIONS:\n" +
+                        "- Answer ONLY using the provided transcript context above\n" +
+                        "- If the answer is not found in the context, respond with: \"Not found in video.\"\n" +
+                        "- Include relevant timestamps [HH:MM:SS] when referencing specific parts\n" +
+                        "- Be concise and accurate\n" +
+                        "- Do not make assumptions or add information not in the context\n\n" +
+                        "QUESTION: %s\n\n" +
+                        "ANSWER:",
                 videoTitle,
                 context,
                 question
