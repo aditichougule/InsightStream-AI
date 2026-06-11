@@ -105,3 +105,11 @@ app:
   chromadb:
     api-url: http://localhost:8000
     collection-name: video-embeddings
+
+  # Step 23: Semantic Search Configuration
+  semantic-search:
+    top-k: 10                        # Default number of results to return
+    similarity-threshold: 0.3        # Minimum cosine similarity (0.0-1.0)
+    include-context: true            # Include surrounding chunks as context
+    context-window: 1                # Number of surrounding chunks to include
+
