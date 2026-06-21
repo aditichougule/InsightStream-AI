@@ -20,7 +20,6 @@ public class HttpClientConfig {
                 .setReadTimeout(java.time.Duration.ofSeconds(30))
                 .build();
     }
-
     @Bean
     public WebClient webClient(WebClient.Builder builder) {
         return builder
